@@ -1,5 +1,7 @@
 import React from 'react';
 import { useUsers } from '../../context/UserContext';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import './UserList.css';
 
 const UserList = () => {
   const { users, deleteUser, setCurrentUser } = useUsers();
@@ -16,29 +18,31 @@ const UserList = () => {
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <TransitionGroup component="tbody">
           {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.username}</td>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>
-                <button 
-                  className="btn btn-warning me-2" 
-                  onClick={() => setCurrentUser(user)}
-                >
-                  Edit
-                </button>
-                <button 
-                  className="btn btn-danger" 
-                  onClick={() => deleteUser(user.id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
+            <CSSTransition key={user.id} timeout={500} classNames="fade">
+              <tr>
+                <td>{user.username}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
+                  <button 
+                    className="btn btn-warning" 
+                    onClick={() => setCurrentUser(user)}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="btn btn-danger" 
+                    onClick={() => deleteUser(user.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </CSSTransition>
           ))}
-        </tbody>
+        </TransitionGroup>
       </table>
     </div>
   );
