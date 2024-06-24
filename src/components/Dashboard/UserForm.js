@@ -1,74 +1,67 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { UserContext } from '../../context/UserContext';
+import React, { useState, useEffect } from 'react';
+import { useUsers } from '../../context/UserContext';
 
-const UserForm = ({ userToEdit, clearEdit }) => {
-  const { addUser, updateUser } = useContext(UserContext);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('');
+const UserForm = () => {
+  const { addUser, editUser, currentUser } = useUsers(); // Removed setCurrentUser
+  const [user, setUser] = useState({ username: '', email: '', role: '' });
 
   useEffect(() => {
-    if (userToEdit) {
-      setUsername(userToEdit.username);
-      setEmail(userToEdit.email);
-      setRole(userToEdit.role);
+    if (currentUser) {
+      setUser(currentUser);
+    } else {
+      setUser({ username: '', email: '', role: '' });
     }
-  }, [userToEdit]);
+  }, [currentUser]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newUser = { username, email, role };
-
-    if (userToEdit) {
-      updateUser(newUser);
-      clearEdit();
+    if (currentUser) {
+      editUser(user);
     } else {
-      addUser(newUser);
+      addUser(user);
     }
-
-    setUsername('');
-    setEmail('');
-    setRole('');
+    setUser({ username: '', email: '', role: '' });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
+    <form onSubmit={handleSubmit}>
       <div className="mb-3">
-        <label htmlFor="username" className="form-label">Username</label>
+        <label className="form-label">Username</label>
         <input
           type="text"
           className="form-control"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          disabled={!!userToEdit}
+          name="username"
+          value={user.username}
+          onChange={handleChange}
         />
       </div>
       <div className="mb-3">
-        <label htmlFor="email" className="form-label">Email</label>
+        <label className="form-label">Email</label>
         <input
           type="email"
           className="form-control"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
+          name="email"
+          value={user.email}
+          onChange={handleChange}
         />
       </div>
       <div className="mb-3">
-        <label htmlFor="role" className="form-label">Role</label>
+        <label className="form-label">Role</label>
         <input
           type="text"
           className="form-control"
-          id="role"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          required
+          name="role"
+          value={user.role}
+          onChange={handleChange}
         />
       </div>
       <button type="submit" className="btn btn-primary">
-        {userToEdit ? 'Update User' : 'Add User'}
+        {currentUser ? 'Update User' : 'Add User'}
       </button>
     </form>
   );

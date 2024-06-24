@@ -1,27 +1,44 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-export const UserContext = createContext();
+const UserContext = createContext();
 
-const UserProvider = ({ children }) => {
+export const UserProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const addUser = (user) => {
+    user.id = users.length + 1;
     setUsers([...users, user]);
   };
 
-  const updateUser = (updatedUser) => {
-    setUsers(users.map((user) => (user.username === updatedUser.username ? updatedUser : user)));
+  const editUser = (updatedUser) => {
+    setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
+    setCurrentUser(null);
   };
 
-  const deleteUser = (username) => {
-    setUsers(users.filter((user) => user.username !== username));
+  const deleteUser = (id) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+
+  const clearCurrentUser = () => {
+    setCurrentUser(null);
   };
 
   return (
-    <UserContext.Provider value={{ users, addUser, updateUser, deleteUser }}>
+    <UserContext.Provider
+      value={{
+        users,
+        addUser,
+        editUser,
+        deleteUser,
+        currentUser,
+        setCurrentUser,
+        clearCurrentUser,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
 
-export { UserProvider };
+export const useUsers = () => useContext(UserContext);

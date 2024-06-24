@@ -1,24 +1,20 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 export const AuthContext = createContext();
 
-const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  const mockUsers = [
-    { username: 'admin', password: 'admin123', role: 'admin' },
-    { username: 'user', password: 'user123', role: 'user' }
-  ];
-
   const login = (username, password) => {
-    const foundUser = mockUsers.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (foundUser) {
-      setUser(foundUser);
-      return foundUser;
+    // Mock authentication service
+    if (username === 'admin' && password === 'admin123') {
+      setUser({ username, role: 'admin' });
+      return true;
+    } else if (username === 'user' && password === 'user123') {
+      setUser({ username, role: 'user' });
+      return true;
     } else {
-      return null;
+      return false;
     }
   };
 
@@ -33,4 +29,6 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-export { AuthProvider };
+export const useAuth = () => {
+  return useContext(AuthContext);
+};

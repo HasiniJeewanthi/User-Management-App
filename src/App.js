@@ -1,59 +1,59 @@
-import React, { useContext, useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import Navbar from './components/Layout/Navbar';
 import Login from './components/Auth/Login';
 import UserForm from './components/Dashboard/UserForm';
 import UserList from './components/Dashboard/UserList';
+import Unauthorized from './components/Unauthorized';
+import PrivateRoute from './components/PrivateRoute';
 
-const Dashboard = () => {
-  const [userToEdit, setUserToEdit] = useState(null);
+const Dashboard = () => (
+  <div className="container mt-5">
+    <h2>Dashboard</h2>
+    <UserForm />
+    <UserList />
+  </div>
+);
 
-  const handleEdit = (user) => {
-    setUserToEdit(user);
-  };
+const AdminPanel = () => (
+  <div className="container mt-5">
+    <h2>Admin Panel</h2>
+    <UserForm />
+    <UserList />
+  </div>
+);
 
-  const clearEdit = () => {
-    setUserToEdit(null);
-  };
-
-  return (
-    <div className="container mt-5">
-      <h2>Dashboard</h2>
-      <UserForm userToEdit={userToEdit} clearEdit={clearEdit} />
-      <UserList onEdit={handleEdit} />
-    </div>
-  );
-};
-
-const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  return user ? children : <Navigate to="/login" />;
-};
-
-const App = () => {
-  return (
-    <AuthProvider>
-      <UserProvider>
-        <Router>
-          <Navbar />
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/login" />} />
-          </Routes>
-        </Router>
-      </UserProvider>
-    </AuthProvider>
-  );
-};
+const App = () => (
+  <AuthProvider>
+    <UserProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute roles={['admin', 'user']}>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute roles={['admin']}>
+                <AdminPanel />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </UserProvider>
+  </AuthProvider>
+);
 
 export default App;
